@@ -1,0 +1,15 @@
+--
+BMP280 data:
+Temperature = 32.71 *C
+Pressure = 101189.61 Pa
+Approx altitude = 11.28 m
+
+BNO055 data:
+Orient:	x= 359.94 |	y= 0.19 |	z= 0.50
+Gyro:	x= 0.00 |	y= 0.00 |	z= 0.00
+Linear:	x= 0.00 |	y= 0.02 |	z= -0.37
+Mag:	x= 16.87 |	y= -9.75 |	z= -21.19
+Accl:	x= 0.02 |	y= -0.07 |	z= 9.43
+Gravity:	x= 0.03 |	y= -0.09 |	z= 9.80
+--
+

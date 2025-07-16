@@ -1,0 +1,107 @@
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BNO055.h>
+#include <utility/imumaths.h>
+
+
+uint16_t BNO055_SAMPLERATE_DELAY_MS = 500;
+Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28, &Wire);
+
+void setup(void) {
+  Serial.begin(115200);
+  while (!Serial) delay(10);
+
+  Serial.println("Orientation Sensor Test");
+
+  if (!bno.begin()) {
+    Serial.println("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
+    while (1);
+  }
+
+  delay(1000);
+}
+
+void loop(void) {
+  sensors_event_t orientationData, angVelocityData, linearAccelData;
+  sensors_event_t magnetometerData, accelerometerData, gravityData;
+
+  bno.getEvent(&orientationData, Adafruit_BNO055::VECTOR_EULER);
+  bno.getEvent(&angVelocityData, Adafruit_BNO055::VECTOR_GYROSCOPE);
+  bno.getEvent(&linearAccelData, Adafruit_BNO055::VECTOR_LINEARACCEL);
+  bno.getEvent(&magnetometerData, Adafruit_BNO055::VECTOR_MAGNETOMETER);
+  bno.getEvent(&accelerometerData, Adafruit_BNO055::VECTOR_ACCELEROMETER);
+  bno.getEvent(&gravityData, Adafruit_BNO055::VECTOR_GRAVITY);
+
+  printEvent(&orientationData);
+  printEvent(&angVelocityData);
+  printEvent(&linearAccelData);
+  printEvent(&magnetometerData);
+  printEvent(&accelerometerData);
+  printEvent(&gravityData);
+
+  int8_t boardTemp = bno.getTemp();
+  Serial.printf("\nTemperature: %d°C\n", boardTemp);
+
+  uint8_t system, gyro, accel, mag;
+  bno.getCalibration(&system, &gyro, &accel, &mag);
+  Serial.printf("Calibration: Sys=%u Gyro=%u Accel=%u Mag=%u\n", system, gyro, accel, mag);
+
+  Serial.printf("--\n");
+  delay(BNO055_SAMPLERATE_DELAY_MS);
+}
+
+void printEvent(sensors_event_t* event) {
+  const char* label = "Unk";
+  double x = -1000000, y = -1000000, z = -1000000;
+
+  switch (event->type) {
+    case SENSOR_TYPE_ACCELEROMETER:
+      label = "Accl";
+      x = event->acceleration.x;
+      y = event->acceleration.y;
+      z = event->acceleration.z;
+      break;
+    case SENSOR_TYPE_ORIENTATION:
+      label = "Orient";
+      x = event->orientation.x;
+      y = event->orientation.y;
+      z = event->orientation.z;
+      break;
+    case SENSOR_TYPE_MAGNETIC_FIELD:
+      label = "Mag";
+      x = event->magnetic.x;
+      y = event->magnetic.y;
+      z = event->magnetic.z;
+      break;
+    case SENSOR_TYPE_GYROSCOPE:
+      label = "Gyro";
+      x = event->gyro.x;
+      y = event->gyro.y;
+      z = event->gyro.z;
+      break;
+    case SENSOR_TYPE_ROTATION_VECTOR:
+      label = "Rot";
+      x = event->gyro.x;
+      y = event->gyro.y;
+      z = event->gyro.z;
+     
+    case SENSOR_TYPE_LINEAR_ACCELERATION:
+      label = "Linear";
+      x = event->acceleration.x;
+      y = event->acceleration.y;
+      z = event->acceleration.z;
+      break;
+    case SENSOR_TYPE_GRAVITY:
+      label = "Gravity";
+      x = event->acceleration.x;
+      y = event->acceleration.y;
+      z = event->acceleration.z;
+      break;
+    default:
+      label = "Unknown";
+      break;
+  }
+
+  Serial.printf("%-8s | x = %8.2f | y = %8.2f | z = %8.2f\n", label, x, y, z);
+}
+
